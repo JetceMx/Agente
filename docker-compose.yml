@@ -1,13 +1,11 @@
-version: '3.8'
-
 services:
   agente:
     build: .
     ports:
       - "8000:8000"
     environment:
-      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
-      - MODEL_NAME=gemini-1.5-flash
+      - COHERE_API_KEY=${COHERE_API_KEY}
+      - MODEL_NAME=${MODEL_NAME:-command-a-03-2025}
       - TEMPERATURE=0.7
     volumes:
       - ./Lectura.pdf:/app/Lectura.pdf

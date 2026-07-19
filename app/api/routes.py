@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List
+from app.core.config import settings
 from app.services.agent import agent_service
 
 
@@ -36,7 +37,24 @@ async def ask_question(request: QuestionRequest):
             ]
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al procesar la pregunta: {str(e)}")
+        upstream_status = getattr(e, "status_code", None)
+
+        if upstream_status == 404:
+            detail = (
+                f"El modelo de IA '{settings.model_name}' no está disponible. "
+                "Revisa la variable MODEL_NAME."
+            )
+        elif upstream_status in (401, 403):
+            detail = "La API key de Cohere no es válida o no tiene acceso al modelo configurado."
+        elif upstream_status == 429:
+            detail = "Se alcanzó el límite de solicitudes de Cohere. Intenta de nuevo más tarde."
+        else:
+            detail = "No se pudo procesar la pregunta con el servicio de IA."
+
+        raise HTTPException(
+            status_code=502 if upstream_status else 500,
+            detail=detail,
+        ) from e
 
 
 @router.post("/reset")

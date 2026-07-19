@@ -22,22 +22,21 @@ Este proyecto implementa un agente inteligente que utiliza técnicas de Retrieva
                                   │
                                   ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│              Agente LangChain + Google Gemini                   │
-│              ConversationalRetrievalChain                        │
-│              + ConversationBufferWindowMemory                    │
+│                    Agente Cohere Command A                       │
+│                 Respuestas basadas en documentos                 │
 └─────────────────────────────────────────────────────────────────┘
                                   │
                     ┌─────────────┴─────────────┐
                     ▼                           ▼
 ┌──────────────────────────┐   ┌──────────────────────────┐
-│     ChromaDB             │   │    Google AI Studio       │
-│   Vector Store           │   │   Gemini + Embeddings     │
+│      Lectura.pdf         │   │      Cohere API           │
+│   Contexto documental    │   │ command-a-03-2025         │
 └──────────────────────────┘   └──────────────────────────┘
                     │
                     ▼
 ┌──────────────────────────┐
 │    PDF Processor         │
-│   PyPDFLoader            │
+│      pypdf               │
 └──────────────────────────┘
 ```
 
@@ -47,10 +46,9 @@ Este proyecto implementa un agente inteligente que utiliza técnicas de Retrieva
 |------------|------------|
 | **Backend** | Python 3.11, FastAPI |
 | **Frontend** | HTML5, CSS3, JavaScript vanilla |
-| **IA/ML** | LangChain, Google Gemini 1.5 Flash |
-| **Embeddings** | Google text-embedding-004 |
-| **Vector Store** | ChromaDB |
-| **PDF Processing** | PyPDFLoader |
+| **IA/ML** | Cohere Command A |
+| **Contexto** | Documentos de Cohere |
+| **PDF Processing** | pypdf |
 | **Containerización** | Docker, Docker Compose |
 | **Cloud** | Oracle Cloud Infrastructure (OCI) |
 
@@ -90,14 +88,14 @@ agente-calculo-diferencial/
 
 ### Prerrequisitos
 - Python 3.11 o superior
-- API Key de Google AI Studio (GRATIS)
+- API Key de Cohere
 - Docker (opcional)
 
-### Obtener API Key Gratuita de Google AI Studio
+### Obtener una API Key de Cohere
 
-1. Ve a [Google AI Studio](https://aistudio.google.com/app/apikey)
-2. Inicia sesión con tu cuenta de Google
-3. Haz clic en "Create API Key"
+1. Ve al [dashboard de Cohere](https://dashboard.cohere.com/api-keys)
+2. Inicia sesión o crea una cuenta
+3. Crea una API key
 4. Copia la API Key generada
 
 ### Instalación Local
@@ -127,8 +125,9 @@ agente-calculo-diferencial/
    # Copiar el archivo de ejemplo
    cp .env.example .env
    
-   # Editar .env y agregar tu API key de Google AI Studio
-   GOOGLE_API_KEY=tu-api-key-aqui
+   # Editar .env y agregar tu API key de Cohere
+   COHERE_API_KEY=tu-api-key-aqui
+   MODEL_NAME=command-a-03-2025
    ```
 
 5. **Ejecutar la aplicación:**
@@ -243,9 +242,8 @@ curl https://<tu-endpoint>.oci.oraclecloud.com/api/health
 
 ## 📌 Notas Importantes
 
-- Google AI Studio ofrece una API **GRATUITA** con límites generosos para desarrollo.
-- La primera ejecución procesará el PDF y creará el vector store (puede tomar unos segundos).
-- El vector store se persiste en disco para evitar reprocesar el PDF en cada inicio.
+- Cohere ofrece API keys de prueba con límites de uso.
+- La primera pregunta carga el contenido del PDF en memoria.
 - Para reiniciar la conversación, usa el botón "🔄 Nueva Conversación" en la interfaz.
 
 ## 📄 Licencia

@@ -1,47 +1,44 @@
-import google.generativeai as genai
+import cohere
 from app.core.config import settings
-from app.services.pdf_processor import document_processor
 
 
 class AgentService:
     def __init__(self):
-        genai.configure(api_key=settings.google_api_key)
-        self.model = genai.GenerativeModel(settings.model_name)
-        self.chat = self.model.start_chat(history=[])
-        self._initialized = False
+        self.co = cohere.Client(settings.cohere_api_key)
+        self.chat_history = []
+        self.full_text = ""
 
-    def _initialize(self):
-        if not self._initialized:
-            document_processor.process_document()
-            self._initialized = True
+    def _load_document(self):
+        from pypdf import PdfReader
+        reader = PdfReader(settings.pdf_path)
+        self.full_text = ""
+        for page in reader.pages:
+            self.full_text += page.extract_text() + "\n"
 
     def ask(self, question: str) -> dict:
-        self._initialize()
-        relevant_chunks = document_processor.similarity_search(question, k=4)
-        context = "\n\n".join(relevant_chunks)
+        if not self.full_text:
+            self._load_document()
 
-        prompt = f"""Eres un asistente experto de Santo Pegasus Soluciones. Eres un asistente de la Guía Oficial de Ingeniería Back-end.
+        context = self.full_text[:8000]
 
-Usa el siguiente contexto para responder las preguntas de manera clara y detallada. Si la respuesta no se encuentra en el contexto proporcionado, indica que no tienes esa información específica en la guía.
+        response = self.co.chat(
+            model=settings.model_name,
+            message=question,
+            documents=[{"title": "Guia Back-end Santo Pegasus", "snippet": context}],
+            preamble="""Eres un asistente experto de Santo Pegasus Soluciones. Responde basándote en la Guía Oficial de Ingeniería Back-end. Si la información no está en la guía, indica que no tienes esa información.""",
+            temperature=settings.temperature,
+            max_tokens=2000,
+        )
 
-Contexto de la guía:
-{context}
+        self.chat_history.append({"user": question, "bot": response.text})
 
-Pregunta: {question}
-
-Respuesta:"""
-
-        response = self.chat.send_message(prompt)
         return {
             "answer": response.text,
-            "sources": [
-                {"content": chunk[:200] + "...", "metadata": {"source": "Lectura.pdf"}}
-                for chunk in relevant_chunks
-            ]
+            "sources": [{"content": context[:200] + "...", "metadata": {"source": "Lectura.pdf"}}]
         }
 
     def reset_memory(self):
-        self.chat = self.model.start_chat(history=[])
+        self.chat_history = []
 
 
 agent_service = AgentService()
