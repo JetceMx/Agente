@@ -1,26 +1,37 @@
-import inspect
 import unittest
 from unittest.mock import patch
 
-import cohere
 from fastapi import HTTPException
+from langchain_core.documents import Document
+from langchain_core.messages import AIMessage
 
 from app.api.routes import QuestionRequest, ask_question
 from app.core.config import settings
-from app.services.agent import AgentService
+from app.services.agent import AgentService, SYSTEM_PROMPT
+from app.services.pdf_processor import document_processor
 
 
-class FakeChatResponse:
-    text = "Respuesta de prueba"
+class FakeVectorStore:
+    def similarity_search(self, question, k):
+        return [
+            Document(
+                page_content="Los Juegos Apex se celebran en los Outlands.",
+                metadata={"source": "Apex Legends.pdf", "page": 2},
+            ),
+            Document(
+                page_content="Información adicional sobre los Juegos Apex.",
+                metadata={"source": "Apex Legends.pdf", "page": 3},
+            ),
+        ]
 
 
-class FakeCohereClient:
+class FakeChatModel:
     def __init__(self):
-        self.last_request = None
+        self.last_messages = None
 
-    def chat(self, **kwargs):
-        self.last_request = kwargs
-        return FakeChatResponse()
+    def invoke(self, messages):
+        self.last_messages = messages
+        return AIMessage(content="Respuesta recuperada por M.A.R.V.I.N.")
 
 
 class FakeNotFoundError(Exception):
@@ -31,34 +42,30 @@ class FakeNotFoundError(Exception):
 
 
 class AgentServiceTests(unittest.TestCase):
-    def test_sdk_supports_current_chat_contract(self):
-        parameters = inspect.signature(cohere.Client.chat).parameters
-
-        for name in (
-            "model",
-            "message",
-            "documents",
-            "preamble",
-            "temperature",
-            "max_tokens",
-        ):
-            self.assertIn(name, parameters)
-
-    def test_ask_uses_configured_model(self):
+    def test_ask_uses_langchain_context_and_returns_sources(self):
         service = AgentService()
-        fake_client = FakeCohereClient()
-        service.co = fake_client
-        service.full_text = "Contenido de prueba del documento."
+        service.vector_store = FakeVectorStore()
+        service.llm = FakeChatModel()
 
-        result = service.ask("¿Cuál es el tema?")
+        with patch.object(service, "_ensure_index"):
+            result = service.ask("¿Qué son los Juegos Apex?")
 
+        self.assertIn("M.A.R.V.I.N.", SYSTEM_PROMPT)
         self.assertEqual(settings.model_name, "command-a-03-2025")
-        self.assertEqual(
-            fake_client.last_request["model"],
-            "command-a-03-2025",
+        self.assertEqual(result["answer"], "Respuesta recuperada por M.A.R.V.I.N.")
+        self.assertEqual(len(result["sources"]), 2)
+        self.assertEqual(result["sources"][0]["metadata"]["page"], 2)
+        self.assertIn(
+            "Apex Legends.pdf",
+            service.llm.last_messages[-1].content,
         )
-        self.assertEqual(result["answer"], "Respuesta de prueba")
-        self.assertEqual(len(result["sources"]), 1)
+
+    def test_document_catalog_finds_all_current_pdfs(self):
+        names = [path.name for path in document_processor.list_pdf_files()]
+
+        self.assertEqual(len(names), 5)
+        self.assertIn("Apex Legends.pdf", names)
+        self.assertIn("Titanfall 2.pdf", names)
 
 
 class RouteErrorTests(unittest.IsolatedAsyncioTestCase):

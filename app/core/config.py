@@ -10,12 +10,15 @@ class Settings(BaseSettings):
 
     cohere_api_key: str = ""
     model_name: str = "command-a-03-2025"
+    embedding_model: str = "embed-multilingual-v3.0"
     temperature: float = 0.7
-    chunk_size: int = 1000
-    chunk_overlap: int = 200
+    chunk_size: int = 1200
+    chunk_overlap: int = 180
+    top_k: int = 5
+    history_turns: int = 4
     api_host: str = "0.0.0.0"
     api_port: int = 8000
-    pdf_path: str = "Lectura.pdf"
+    pdf_dir: str = "pdfs"
 
 
 settings = Settings()

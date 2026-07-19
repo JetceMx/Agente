@@ -1,87 +1,83 @@
-# Oracle Cloud Infrastructure (OCI) Deployment Guide
+# Despliegue de M.A.R.V.I.N. en OCI
 
-## Prerequisites
-- OCI CLI configured
-- Docker installed
-- Access to OCI Container Registry (OCIR)
+## Requisitos
 
-## Steps to Deploy
+- OCI CLI configurada.
+- Docker.
+- Acceso a Oracle Cloud Infrastructure Registry (OCIR).
+- API key de Cohere almacenada de forma segura.
+- Los PDFs dentro de `pdfs/` antes de construir la imagen.
 
-### 1. Build and Tag the Docker Image
+## 1. Construir y etiquetar la imagen
+
 ```bash
-# Build the image
-docker build -t agente-calculo .
-
-# Tag for OCIR
-docker tag agente-calculo:latest <your-ocir-namespace>/agente-calculo:latest
+docker build -t marvin-fan-intel .
+docker tag marvin-fan-intel:latest \
+  <namespace-ocir>/marvin-fan-intel:latest
 ```
 
-### 2. Push to OCIR
-```bash
-# Login to OCIR
-docker login <your-ocir-registry>
+## 2. Publicar en OCIR
 
-# Push the image
-docker push <your-ocir-namespace>/agente-calculo:latest
+```bash
+docker login <registro-ocir>
+docker push <namespace-ocir>/marvin-fan-intel:latest
 ```
 
-### 3. Deploy to OCI Container Instances
-```bash
-# Create a container instance using OCI CLI
-oci container-instances container-instance create \
-    --compartment-id <your-compartment-id> \
-    --display-name "agente-calculo" \
-    --containers '[{
-        "imageUrl": "<your-ocir-namespace>/agente-calculo:latest",
-        "environmentVariables": {
-            "OPENAI_API_KEY": "<your-openai-api-key>"
-        },
-        "resourceConfig": {
-            "memoryInGBs": 1,
-            "ocpus": 1
-        }
-    }]' \
-    --shape "CI.Standard.E4.1" \
-    --vnics '[{
-        "subnetId": "<your-subnet-id>",
-        "assignPublicIp": true
-    }]'
+## 3. Crear la instancia de contenedor
+
+Configura estas variables en el contenedor:
+
+```text
+COHERE_API_KEY=<secreto-desde-oci-vault>
+MODEL_NAME=command-a-03-2025
+EMBEDDING_MODEL=embed-multilingual-v3.0
+PDF_DIR=pdfs
 ```
 
-### 4. Configure Security
-- Store OpenAI API key in OCI Vault
-- Use IAM policies to restrict access
-- Configure security lists to allow traffic on port 8000
+Usa la imagen:
 
-### 5. Alternative: Deploy to OCI Compute Instance
+```text
+<namespace-ocir>/marvin-fan-intel:latest
+```
+
+Expón el puerto `8000` y asigna una IP pública o un balanceador según el entorno.
+
+## 4. Seguridad
+
+- Guarda `COHERE_API_KEY` en OCI Vault.
+- No copies `.env` dentro de la imagen.
+- Restringe el acceso con políticas IAM.
+- Habilita únicamente el puerto necesario.
+- Trata los PDFs como contenido privado si no son documentos públicos.
+
+## 5. Alternativa en una instancia Compute
+
 ```bash
-# SSH into your compute instance
-ssh -i <your-key> opc@<instance-ip>
+docker pull <namespace-ocir>/marvin-fan-intel:latest
 
-# Install Docker
-sudo yum install -y docker
-sudo systemctl start docker
-sudo usermod -aG docker opc
-
-# Pull and run the container
-docker pull <your-ocir-namespace>/agente-calculo:latest
 docker run -d \
-    -p 8000:8000 \
-    -e OPENAI_API_KEY=<your-key> \
-    --name agente \
-    <your-ocir-namespace>/agente-calculo:latest
+  -p 8000:8000 \
+  -e COHERE_API_KEY=<tu-api-key> \
+  -e MODEL_NAME=command-a-03-2025 \
+  -e EMBEDDING_MODEL=embed-multilingual-v3.0 \
+  -e PDF_DIR=pdfs \
+  --name marvin \
+  <namespace-ocir>/marvin-fan-intel:latest
 ```
 
-## Verification
-After deployment, verify the application is running:
+## Verificación
+
 ```bash
-curl http://<your-public-ip>:8000/api/health
+curl http://<ip-publica>:8000/api/health
 ```
 
-Expected response:
+Respuesta esperada:
+
 ```json
 {
-    "status": "healthy",
-    "message": "El agente está funcionando correctamente"
+  "status": "healthy",
+  "agent": "M.A.R.V.I.N.",
+  "model": "command-a-03-2025",
+  "documents": 5
 }
 ```

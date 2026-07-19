@@ -3,60 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agente de Calculo Diferencial</title>
-    <link rel="stylesheet" href="/static/styles.css">
+    <meta name="theme-color" content="#090d10">
+    <meta
+        name="description"
+        content="M.A.R.V.I.N., terminal de consulta para fans de Apex Legends y Titanfall."
+    >
+    <title>M.A.R.V.I.N. // Fan Intel Terminal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Rajdhani:wght@500;600;700&display=swap"
+        rel="stylesheet"
+    >
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <div class="header-content">
-        <h1>🤖 Santo Pegasus - Guía Back-end</h1>
-            <p class="subtitle">Asistente de la Guía Oficial de Ingeniería Back-end</p>
-            </div>
-            <button id="resetBtn" class="btn-reset" title="Reiniciar conversación">
-                🔄 Nueva Conversación
-            </button>
-        </header>
+    <div class="ambient-grid" aria-hidden="true"></div>
 
-        <main class="chat-container">
-            <div id="chatMessages" class="chat-messages">
-                <div class="message bot-message">
-                    <div class="message-avatar">🤖</div>
-                    <div class="message-content">
-                        <p>¡Hola! Soy el asistente de la Guía Oficial de Ingeniería Back-end de Santo Pegasus Soluciones. Puedo responder preguntas sobre las directrices, arquitectura, buenas prácticas y estándares del equipo.</p>
-                        <p class="examples">Ejemplos de preguntas que puedes hacer:</p>
-                        <ul>
-                            <li>"¿Cuáles son los estándares de código del equipo?"</li>
-                            <li>"¿Cómo se estructuran los proyectos en Santo Pegasus?"</li>
-                            <li>"¿Qué tecnologías usa el equipo de Back-end?"</li>
-                            <li>"¿Cuáles son las mejores prácticas de seguridad?"</li>
-                        </ul>
+    <main class="app-shell">
+        <aside class="intel-rail" aria-label="Estado de M.A.R.V.I.N.">
+            <div class="rail-accent" aria-hidden="true"></div>
+
+            <section class="brand-lockup">
+                <div class="mrvn-mark" aria-hidden="true">
+                    <span class="mrvn-eye"></span>
+                    <span class="mrvn-eye"></span>
+                    <span class="mrvn-mouth"></span>
+                </div>
+                <div>
+                    <p class="eyebrow">FAN INTEL // MRVN-01</p>
+                    <h1>M.A.R.V.I.N.</h1>
+                    <p class="version-tag">CORE BUILD 02.00</p>
+                </div>
+            </section>
+
+            <p class="mission-copy">
+                Módulo de Asistencia y Respuesta Virtual para Información de Negocios
+            </p>
+
+            <section class="telemetry" aria-label="Telemetría del agente">
+                <div class="telemetry-card">
+                    <span class="telemetry-label">CORE</span>
+                    <strong><i class="status-dot"></i> ONLINE</strong>
+                </div>
+                <div class="telemetry-card">
+                    <span class="telemetry-label">ARCHIVOS</span>
+                    <strong id="documentCount">--</strong>
+                </div>
+            </section>
+
+            <section class="knowledge-panel">
+                <div class="panel-heading">
+                    <div>
+                        <span class="section-code">KB_01</span>
+                        <h2>PDF VAULT</h2>
+                    </div>
+                    <span id="indexStatus" class="index-pill">STANDBY</span>
+                </div>
+                <div id="documentList" class="document-list" aria-live="polite">
+                    <div class="document-loading">
+                        <span></span>
+                        Sincronizando biblioteca
                     </div>
                 </div>
+            </section>
+
+            <section class="stack-panel">
+                <span class="section-code">SYSTEM STACK</span>
+                <div class="stack-row">
+                    <span>ORCHESTRATION</span>
+                    <strong>LANGCHAIN</strong>
+                </div>
+                <div class="stack-row">
+                    <span>INTELLIGENCE</span>
+                    <strong>COHERE</strong>
+                </div>
+                <div class="stack-row">
+                    <span>MODEL</span>
+                    <strong>COMMAND A</strong>
+                </div>
+            </section>
+
+            <p class="fan-notice">
+                Proyecto creado por fans. No afiliado con Electronic Arts ni Respawn
+                Entertainment.
+            </p>
+        </aside>
+
+        <section class="terminal">
+            <header class="terminal-header">
+                <div class="terminal-title">
+                    <span class="terminal-kicker">QUERY OPERATIONS</span>
+                    <h2>Centro de inteligencia</h2>
+                </div>
+                <div class="header-actions">
+                    <div id="systemState" class="system-state">
+                        <span class="signal-bars" aria-hidden="true">
+                            <i></i><i></i><i></i>
+                        </span>
+                        <span>ENLACE ESTABLE</span>
+                    </div>
+                    <button id="resetBtn" class="reset-button" type="button">
+                        <span aria-hidden="true">↻</span>
+                        Nueva sesión
+                    </button>
+                </div>
+            </header>
+
+            <div
+                id="chatMessages"
+                class="chat-messages"
+                aria-live="polite"
+                aria-label="Conversación con M.A.R.V.I.N."
+            >
+                <article class="message bot-message welcome-message">
+                    <div class="message-avatar" aria-hidden="true">
+                        <span>M</span>
+                    </div>
+                    <div class="message-body">
+                        <div class="message-meta">
+                            <span>M.A.R.V.I.N.</span>
+                            <time>BOOT SEQUENCE COMPLETE</time>
+                        </div>
+                        <div class="message-content">
+                            <p class="boot-line">SALUDOS, PILOTO.</p>
+                            <h3>La biblioteca de los Outlands está en línea.</h3>
+                            <p>
+                                Puedo rastrear datos sobre leyendas, armamento, historia,
+                                facciones, Titanfall y Respawn dentro de los documentos
+                                cargados. Pregunta y buscaré los fragmentos más relevantes.
+                            </p>
+                            <div class="quick-grid" aria-label="Consultas sugeridas">
+                                <button
+                                    type="button"
+                                    class="quick-prompt"
+                                    data-question="¿Cuál es la historia general de Apex Legends?"
+                                >
+                                    <span>01</span>
+                                    Historia de Apex
+                                </button>
+                                <button
+                                    type="button"
+                                    class="quick-prompt"
+                                    data-question="¿Qué información hay sobre las armas del juego?"
+                                >
+                                    <span>02</span>
+                                    Arsenal
+                                </button>
+                                <button
+                                    type="button"
+                                    class="quick-prompt"
+                                    data-question="¿Cómo se relacionan Titanfall y Apex Legends?"
+                                >
+                                    <span>03</span>
+                                    Línea Titanfall
+                                </button>
+                                <button
+                                    type="button"
+                                    class="quick-prompt"
+                                    data-question="¿Qué sabes de Respawn Entertainment?"
+                                >
+                                    <span>04</span>
+                                    Respawn Intel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </article>
             </div>
 
-            <form id="chatForm" class="chat-input-form">
-                <div class="input-wrapper">
-                    <textarea 
-                        id="questionInput" 
-                        placeholder="Escribe tu pregunta aquí..." 
-                        rows="1"
-                        required
-                    ></textarea>
-                    <button type="submit" id="sendBtn" class="btn-send">
-                        <span class="send-icon">➤</span>
+            <form id="chatForm" class="query-console">
+                <label for="questionInput" class="sr-only">
+                    Escribe una pregunta para M.A.R.V.I.N.
+                </label>
+                <div class="query-prefix" aria-hidden="true">
+                    <span>Q</span>
+                    <i></i>
+                </div>
+                <textarea
+                    id="questionInput"
+                    placeholder="CONSULTAR LA BASE DE DATOS..."
+                    rows="1"
+                    maxlength="2000"
+                    required
+                ></textarea>
+                <div class="query-actions">
+                    <span class="key-hint">ENTER</span>
+                    <button
+                        type="submit"
+                        id="sendBtn"
+                        class="send-button"
+                        aria-label="Enviar consulta"
+                    >
+                        <span>ENVIAR</span>
+                        <b aria-hidden="true">›</b>
                     </button>
                 </div>
             </form>
-        </main>
 
-        <footer class="footer">
-            <p>Agente Inteligente basado en LangChain + OpenAI</p>
-        </footer>
-    </div>
+            <footer class="terminal-footer">
+                <p>Agente Inteligente basado en <strong>LangChain + Cohere</strong></p>
+                <span>RAG PROTOCOL // MULTI-PDF</span>
+            </footer>
+        </section>
+    </main>
 
     <script src="/static/script.js"></script>
 </body>

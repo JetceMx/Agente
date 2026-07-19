@@ -1,255 +1,139 @@
-# 🤖 Agente Inteligente de Calculo Diferencial
+# M.A.R.V.I.N. // Fan Intel
 
-Agente de inteligencia artificial capaz de responder preguntas basadas en el contenido del Capítulo 1: **Precision, Error y Aproximaciones** del libro de Calculo Diferencial.
+**M.A.R.V.I.N.** significa **Módulo de Asistencia y Respuesta Virtual para
+Información de Negocios**. Es un agente de consulta para una comunidad de fans de
+Apex Legends y Titanfall, inspirado en los robots MRVN de ese universo.
 
-## 📋 Descripción General
+El proyecto usa un flujo RAG real con **LangChain + Cohere**: divide varios PDFs
+en fragmentos, crea embeddings multilingües, recupera la información más relevante
+y genera una respuesta indicando el archivo y la página utilizados.
 
-Este proyecto implementa un agente inteligente que utiliza técnicas de Retrieval-Augmented Generation (RAG) para responder preguntas sobre conceptos de precisión, propagación de errores y aproximaciones matemáticas. El agente procesa un documento PDF como fuente de información y utiliza embeddings vectoriales para encontrar y generar respuestas contextuales.
+> Proyecto creado por fans. No está afiliado con Electronic Arts ni Respawn
+> Entertainment.
 
-## 🏗️ Arquitectura de la Solución
+## Capacidades
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        Frontend (HTML/CSS/JS)                   │
-│                     Interfaz de chat intuitiva                   │
-└─────────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      API REST (FastAPI)                         │
-│                   Endpoints: /ask, /reset, /health              │
-└─────────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    Agente Cohere Command A                       │
-│                 Respuestas basadas en documentos                 │
-└─────────────────────────────────────────────────────────────────┘
-                                  │
-                    ┌─────────────┴─────────────┐
-                    ▼                           ▼
-┌──────────────────────────┐   ┌──────────────────────────┐
-│      Lectura.pdf         │   │      Cohere API           │
-│   Contexto documental    │   │ command-a-03-2025         │
-└──────────────────────────┘   └──────────────────────────┘
-                    │
-                    ▼
-┌──────────────────────────┐
-│    PDF Processor         │
-│      pypdf               │
-└──────────────────────────┘
+- Consulta simultánea de varios archivos PDF.
+- Recuperación semántica con `CohereEmbeddings`.
+- Respuestas con `ChatCohere` y Command A.
+- Fuentes por nombre de archivo y número de página.
+- Memoria breve de conversación.
+- Detección de cambios en la biblioteca durante la ejecución.
+- Interfaz responsive estilo terminal sci-fi.
+
+## Arquitectura
+
+```text
+Navegador
+   │
+   ▼
+FastAPI ──► LangChain
+               │
+               ├──► PDFs ──► fragmentos ──► Cohere Embeddings
+               │                              │
+               │                              ▼
+               │                       búsqueda semántica
+               │                              │
+               └──► ChatCohere ◄── contexto recuperado
 ```
 
-## 🛠️ Tecnologías y Herramientas
+## Biblioteca de documentos
 
-| Componente | Tecnología |
-|------------|------------|
-| **Backend** | Python 3.11, FastAPI |
-| **Frontend** | HTML5, CSS3, JavaScript vanilla |
-| **IA/ML** | Cohere Command A |
-| **Contexto** | Documentos de Cohere |
-| **PDF Processing** | pypdf |
-| **Containerización** | Docker, Docker Compose |
-| **Cloud** | Oracle Cloud Infrastructure (OCI) |
+Los documentos deben guardarse dentro de:
 
-## 📁 Estructura del Proyecto
-
-```
-agente-calculo-diferencial/
-├── app/
-│   ├── __init__.py
-│   ├── main.py              # Punto de entrada FastAPI
-│   ├── core/
-│   │   ├── __init__.py
-│   │   └── config.py        # Configuración del proyecto
-│   ├── api/
-│   │   ├── __init__.py
-│   │   └── routes.py        # Endpoints de la API
-│   └── services/
-│       ├── __init__.py
-│       ├── pdf_processor.py  # Procesamiento de PDF
-│       └── agent.py          # Lógica del agente IA
-├── static/
-│   ├── styles.css           # Estilos CSS
-│   └── script.js            # JavaScript del frontend
-├── templates/
-│   └── index.html           # Plantilla HTML principal
-├── tests/                   # Pruebas unitarias
-├── Lectura.pdf              # Documento fuente (Cap 1)
-├── requirements.txt         # Dependencias Python
-├── Dockerfile               # Configuración Docker
-├── docker-compose.yml       # Orquestación Docker
-├── .env.example             # Variables de entorno (ejemplo)
-├── .gitignore               # Archivos ignorados por Git
-└── OCI_DEPLOY.md            # Guía de despliegue en OCI
+```text
+pdfs/
+├── Apex Legends.pdf
+├── Armas.pdf
+├── Respawn Entertainment.pdf
+├── Titanfall.pdf
+└── Titanfall 2.pdf
 ```
 
-## 🚀 Instrucciones para Ejecutar el Proyecto
+M.A.R.V.I.N. carga automáticamente todos los archivos `*.pdf` de esa carpeta. Si
+se agrega, elimina o modifica un archivo, el índice se reconstruye en la siguiente
+consulta. Durante la migración, también puede detectar PDFs ubicados en la raíz
+cuando `pdfs/` todavía no existe o está vacía.
 
-### Prerrequisitos
-- Python 3.11 o superior
-- API Key de Cohere
-- Docker (opcional)
+## Configuración
 
-### Obtener una API Key de Cohere
+1. Copia el archivo de ejemplo:
 
-1. Ve al [dashboard de Cohere](https://dashboard.cohere.com/api-keys)
-2. Inicia sesión o crea una cuenta
-3. Crea una API key
-4. Copia la API Key generada
-
-### Instalación Local
-
-1. **Clonar el repositorio:**
    ```bash
-   git clone https://github.com/tu-usuario/agente-calculo-diferencial.git
-   cd agente-calculo-diferencial
-   ```
-
-2. **Crear entorno virtual:**
-   ```bash
-   python -m venv venv
-   # Windows
-   venv\Scripts\activate
-   # Linux/Mac
-   source venv/bin/activate
-   ```
-
-3. **Instalar dependencias:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Configurar variables de entorno:**
-   ```bash
-   # Copiar el archivo de ejemplo
    cp .env.example .env
-   
-   # Editar .env y agregar tu API key de Cohere
+   ```
+
+2. Agrega tu API key de Cohere:
+
+   ```dotenv
    COHERE_API_KEY=tu-api-key-aqui
    MODEL_NAME=command-a-03-2025
+   EMBEDDING_MODEL=embed-multilingual-v3.0
+   PDF_DIR=pdfs
    ```
 
-5. **Ejecutar la aplicación:**
-   ```bash
-   python -m app.main
-   ```
+## Ejecución local
 
-6. **Abrir el navegador:**
-   ```
-   http://localhost:8000
-   ```
+Requiere Python 3.11 o superior.
 
-### Con Docker
-
-1. **Construir y ejecutar:**
-   ```bash
-   docker-compose up --build
-   ```
-
-2. **Acceder a la aplicación:**
-   ```
-   http://localhost:8000
-   ```
-
-## 💬 Ejemplos de Preguntas que el Agente Puede Responder
-
-### Sobre Error Absoluto
-- "¿Qué es el error absoluto?"
-- "¿Cómo se calcula el error absoluto?"
-- "Dame la fórmula del error absoluto"
-
-### Sobre Error Relativo
-- "¿Qué diferencia hay entre error absoluto y error relativo?"
-- "¿Cómo se expresa el error relativo?"
-- "¿Qué es el error porcentual?"
-
-### Sobre Propagación de Errores
-- "Explica la propagación de errores en sumas"
-- "¿Cómo se propagan los errores en multiplicaciones?"
-- "¿Qué es la regla de propagation of errors?"
-
-### Sobre Aproximaciones
-- "¿Qué son las aproximaciones numéricas?"
-- "¿Cómo funciona el método de Newton para aproximar raíces?"
-- "¿Qué es una serie de Taylor?"
-
-### Conceptos Generales
-- "¿Qué diferencia hay entre precisión y exactitud?"
-- "¿Qué es un dígito significativo?"
-- "¿Cómo se redondean números con error?"
-
-## 📝 Ejemplos de Respuestas Generadas
-
-**Pregunta:** "¿Qué es el error absoluto?"
-
-**Respuesta del Agente:**
-> El error absoluto es la diferencia entre el valor medido o aproximado (x*) y el valor verdadero o exacto (x) de una cantidad. Matemáticamente se expresa como:
->
-> **Error Absoluto = |x* - x|**
->
-> Donde:
-> - x* es el valor aproximado o medido
-> - x es el valor verdadero
-> - Las barras indican valor absoluto
->
-> El error absoluto nos indica cuán lejos está nuestra aproximación del valor real, pero no nos dice qué tan significativo es ese error en relación con la magnitud del valor.
-
----
-
-**Pregunta:** "¿Cómo se calcula el error relativo?"
-
-**Respuesta del Agente:**
-> El error relativo se calcula dividiendo el error absoluto entre el valor verdadero:
->
-> **Error Relativo = |x* - x| / |x|**
->
-> O expresado como porcentaje:
->
-> **Error Porcentual = (|x* - x| / |x|) × 100%**
->
-> Ventajas del error relativo:
-> 1. Es adimensional (no tiene unidades)
-> 2. Proporciona una medida de la precisión relativa
-> 3. Permite comparar errores entre mediciones de diferentes magnitudes
->
-> Por ejemplo, un error de 1 cm es significativo si mides una pulsera, pero insignificante si mides la distancia entre ciudades.
-
-## ☁️ Evidencia del Deploy en OCI
-
-### Enlace de la Aplicación Desplegada
-[https://<tu-endpoint>.oci.oraclecloud.com](https://tu-endpoint.oci.oraclecloud.com)
-
-### Capturas de Pantalla
-
-**Interfaz del Chat:**
-![Chat Interface](docs/screenshots/chat-interface.png)
-
-**Respuesta del Agente:**
-![Agent Response](docs/screenshots/agent-response.png)
-
-### Verificación del Deploy
 ```bash
-# Verificar que el servicio está activo
-curl https://<tu-endpoint>.oci.oraclecloud.com/api/health
+python -m venv venv
 
-# Respuesta esperada
-{
-    "status": "healthy",
-    "message": "El agente está funcionando correctamente"
-}
+# Windows
+venv\Scripts\activate
+
+# Linux/macOS
+source venv/bin/activate
+
+pip install -r requirements.txt
+python -m app.main
 ```
 
-## 📌 Notas Importantes
+Abre `http://localhost:8000`.
 
-- Cohere ofrece API keys de prueba con límites de uso.
-- La primera pregunta carga el contenido del PDF en memoria.
-- Para reiniciar la conversación, usa el botón "🔄 Nueva Conversación" en la interfaz.
+## Ejecución con Docker
 
-## 📄 Licencia
+```bash
+docker compose up --build
+```
 
-Este proyecto es para fines educativos.
+El directorio local `pdfs/` se monta en modo lectura dentro del contenedor.
 
-## 👨‍💻 Autor
+## API
 
-[Tu Nombre] - [Tu Email]
+| Método | Ruta | Descripción |
+|---|---|---|
+| `POST` | `/api/ask` | Responde una consulta con fuentes |
+| `GET` | `/api/documents` | Lista la biblioteca disponible |
+| `POST` | `/api/reset` | Limpia la memoria de conversación |
+| `GET` | `/api/health` | Informa estado, modelo y cantidad de PDFs |
+
+Ejemplo:
+
+```bash
+curl -X POST http://localhost:8000/api/ask \
+  -H "Content-Type: application/json" \
+  -d '{"question":"¿Cómo se relacionan Titanfall y Apex Legends?"}'
+```
+
+## Pruebas
+
+```bash
+python -m unittest -v test_cohere_integration.py
+```
+
+Las pruebas usan dobles locales y no envían los PDFs a Cohere.
+
+## Estructura principal
+
+```text
+app/
+├── api/routes.py
+├── core/config.py
+├── services/agent.py
+├── services/pdf_processor.py
+└── main.py
+pdfs/
+static/
+templates/
+```

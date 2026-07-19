@@ -1,6 +1,9 @@
+from typing import List
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import List
+from starlette.concurrency import run_in_threadpool
+
 from app.core.config import settings
 from app.services.agent import agent_service
 
@@ -22,22 +25,49 @@ class AnswerResponse(BaseModel):
     sources: List[SourceResponse]
 
 
+class DocumentResponse(BaseModel):
+    name: str
+    size: int
+
+
+class CatalogResponse(BaseModel):
+    count: int
+    documents: List[DocumentResponse]
+    indexed: bool
+    model: str
+
+
+def _upstream_status(error: Exception):
+    current = error
+    visited = set()
+    while current is not None and id(current) not in visited:
+        visited.add(id(current))
+        status = getattr(current, "status_code", None)
+        if status:
+            return status
+        current = current.__cause__ or current.__context__
+    return None
+
+
 @router.post("/ask", response_model=AnswerResponse)
 async def ask_question(request: QuestionRequest):
-    if not request.question.strip():
-        raise HTTPException(status_code=400, detail="La pregunta no puede estar vacía")
+    question = request.question.strip()
+    if not question:
+        raise HTTPException(status_code=400, detail="La pregunta no puede estar vacía.")
 
     try:
-        result = agent_service.ask(request.question)
+        result = await run_in_threadpool(agent_service.ask, question)
         return AnswerResponse(
             answer=result["answer"],
             sources=[
-                SourceResponse(content=s["content"], metadata=s["metadata"])
-                for s in result["sources"]
-            ]
+                SourceResponse(content=source["content"], metadata=source["metadata"])
+                for source in result["sources"]
+            ],
         )
-    except Exception as e:
-        upstream_status = getattr(e, "status_code", None)
+    except FileNotFoundError as error:
+        raise HTTPException(status_code=503, detail=str(error)) from error
+    except Exception as error:
+        upstream_status = _upstream_status(error)
 
         if upstream_status == 404:
             detail = (
@@ -45,24 +75,35 @@ async def ask_question(request: QuestionRequest):
                 "Revisa la variable MODEL_NAME."
             )
         elif upstream_status in (401, 403):
-            detail = "La API key de Cohere no es válida o no tiene acceso al modelo configurado."
+            detail = "La API key de Cohere no es válida o no tiene acceso al modelo."
         elif upstream_status == 429:
-            detail = "Se alcanzó el límite de solicitudes de Cohere. Intenta de nuevo más tarde."
+            detail = "Se alcanzó el límite de solicitudes de Cohere. Intenta más tarde."
         else:
-            detail = "No se pudo procesar la pregunta con el servicio de IA."
+            detail = "M.A.R.V.I.N. no pudo procesar la consulta en este momento."
 
         raise HTTPException(
             status_code=502 if upstream_status else 500,
             detail=detail,
-        ) from e
+        ) from error
+
+
+@router.get("/documents", response_model=CatalogResponse)
+async def list_documents():
+    return CatalogResponse(**agent_service.catalog())
 
 
 @router.post("/reset")
 async def reset_conversation():
     agent_service.reset_memory()
-    return {"message": "Conversación reiniciada exitosamente"}
+    return {"message": "Memoria de conversación reiniciada."}
 
 
 @router.get("/health")
 async def health_check():
-    return {"status": "healthy", "message": "El agente está funcionando correctamente"}
+    catalog = agent_service.catalog()
+    return {
+        "status": "healthy",
+        "agent": "M.A.R.V.I.N.",
+        "model": settings.model_name,
+        "documents": catalog["count"],
+    }
