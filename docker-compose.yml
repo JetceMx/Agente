@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  agente:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - MODEL_NAME=gemini-1.5-flash
+      - TEMPERATURE=0.7
+    volumes:
+      - ./Lectura.pdf:/app/Lectura.pdf
+      - chroma_data:/app/chroma_db
+    restart: unless-stopped
+
+volumes:
+  chroma_data:

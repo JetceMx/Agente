@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agente de Calculo Diferencial</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <h1>📐 Agente de Calculo Diferencial</h1>
+                <p class="subtitle">Capítulo 1: Precision, Error y Aproximaciones</p>
+            </div>
+            <button id="resetBtn" class="btn-reset" title="Reiniciar conversación">
+                🔄 Nueva Conversación
+            </button>
+        </header>
+
+        <main class="chat-container">
+            <div id="chatMessages" class="chat-messages">
+                <div class="message bot-message">
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        <p>¡Hola! Soy tu asistente de Calculo Diferencial. Puedo responder preguntas sobre el Capítulo 1: Precision, Error y Aproximaciones.</p>
+                        <p class="examples">Ejemplos de preguntas que puedes hacer:</p>
+                        <ul>
+                            <li>"¿Qué es el error absoluto?"</li>
+                            <li>"¿Cómo se calcula el error relativo?"</li>
+                            <li>"Explica la propagación de errores"</li>
+                            <li>"¿Qué diferencia hay entre precisión y exactitud?"</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <form id="chatForm" class="chat-input-form">
+                <div class="input-wrapper">
+                    <textarea 
+                        id="questionInput" 
+                        placeholder="Escribe tu pregunta aquí..." 
+                        rows="1"
+                        required
+                    ></textarea>
+                    <button type="submit" id="sendBtn" class="btn-send">
+                        <span class="send-icon">➤</span>
+                    </button>
+                </div>
+            </form>
+        </main>
+
+        <footer class="footer">
+            <p>Agente Inteligente basado en LangChain + OpenAI</p>
+        </footer>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
