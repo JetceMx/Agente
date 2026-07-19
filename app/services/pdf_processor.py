@@ -33,7 +33,7 @@ class DocumentProcessor:
         embeddings = []
         for chunk in chunks:
             result = genai.embed_content(
-                model="models/text-embedding-004",
+                model="models/embedding-001",
                 content=chunk
             )
             embeddings.append(result["embedding"])
@@ -53,7 +53,7 @@ class DocumentProcessor:
 
     def similarity_search(self, query: str, k: int = 4) -> list:
         result = genai.embed_content(
-            model="models/text-embedding-004",
+            model="models/embedding-001",
             content=query
         )
         query_embedding = result["embedding"]

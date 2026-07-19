@@ -119,13 +119,13 @@ async function resetConversation() {
         chatMessages.innerHTML = '';
 
         addMessage(`
-            ¡Hola! Soy tu asistente de Calculo Diferencial. Puedo responder preguntas sobre el Capítulo 1: Precision, Error y Aproximaciones.
+            ¡Hola! Soy el asistente de la Guía Oficial de Ingeniería Back-end de Santo Pegasus Soluciones. Puedo responder preguntas sobre las directrices, arquitectura, buenas prácticas y estándares del equipo.
             <p class="examples">Ejemplos de preguntas que puedes hacer:</p>
             <ul>
-                <li>"¿Qué es el error absoluto?"</li>
-                <li>"¿Cómo se calcula el error relativo?"</li>
-                <li>"Explica la propagación de errores"</li>
-                <li>"¿Qué diferencia hay entre precisión y exactitud?"</li>
+                <li>"¿Cuáles son los estándares de código del equipo?"</li>
+                <li>"¿Cómo se estructuran los proyectos en Santo Pegasus?"</li>
+                <li>"¿Qué tecnologías usa el equipo de Back-end?"</li>
+                <li>"¿Cuáles son las mejores prácticas de seguridad?"</li>
             </ul>
         `, false);
     } catch (error) {

@@ -20,11 +20,11 @@ class AgentService:
         relevant_chunks = document_processor.similarity_search(question, k=4)
         context = "\n\n".join(relevant_chunks)
 
-        prompt = f"""Eres un asistente experto en Calculo Diferencial, especializado en el Capítulo 1: Precision, Error y Aproximaciones.
+        prompt = f"""Eres un asistente experto de Santo Pegasus Soluciones. Eres un asistente de la Guía Oficial de Ingeniería Back-end.
 
-Usa el siguiente contexto para responder la pregunta de manera clara y educativa. Si la respuesta no se encuentra en el contexto, indica que no tienes esa información específica.
+Usa el siguiente contexto para responder las preguntas de manera clara y detallada. Si la respuesta no se encuentra en el contexto proporcionado, indica que no tienes esa información específica en la guía.
 
-Contexto del documento:
+Contexto de la guía:
 {context}
 
 Pregunta: {question}
