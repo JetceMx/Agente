@@ -1,3 +1,10 @@
+## !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+##
+## PARA ENTRAR AL DEPLOY ES CON LA SIGUIENTE IP: http://139.177.102.134:8000/
+##
+## !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
 # M.A.R.V.I.N. // Fan Intel
 
 **M.A.R.V.I.N.** significa **Módulo de Asistencia y Respuesta Virtual para
@@ -238,3 +245,8 @@ Según el contexto recuperado de la biblioteca, aquí está la información disp
 Si necesitas más detalles sobre algún aspecto específico, avísame.
 
 
+## !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+##
+## PARA ENTRAR AL DEPLOY ES CON LA SIGUIENTE IP: http://139.177.102.134:8000/
+##
+## !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
